@@ -1,10 +1,28 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Weather Fetcher";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Weather Fetcher</h1>
+
+<form method="post" asp-page-handler="FetchWeather">
+    <div>
+        <label for="CityName">City Name:</label>
+        <input type="text" id="CityName" asp-for="CityName" />
+    </div>
+    <div>
+        <label for="CountryName">Country Name:</label>
+        <input type="text" id="CountryName" asp-for="CountryName" />
+    </div>
+    <div>
+        <label for="ApiKey">API Key:</label>
+        <input type="text" id="ApiKey" asp-for="ApiKey" />
+    </div>
+    <button type="submit">Fetch Weather Description</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.WeatherDescription))
+{
+    <p id="weatherDescription">@Model.WeatherDescription</p>
+}
