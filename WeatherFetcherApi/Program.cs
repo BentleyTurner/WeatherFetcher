@@ -14,8 +14,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/weatherdescription",
-    (string cityName, string countryName, string apiKey, [FromServices] IWeatherService todoItemService) =>
-        todoItemService.FetchWeatherDescription(cityName, countryName, apiKey));
+    (string cityName, string countryName, string apiKey, [FromServices] IWeatherService weatherService) =>
+        weatherService.FetchWeatherDescription(cityName, countryName, apiKey));
 
 app.Run();
 

@@ -16,7 +16,7 @@ public abstract class TestBase : IClassFixture<WebApplicationFactory<Program>>
 {
     protected readonly HttpClient Client;
 
-    public TestBase(WebApplicationFactory<Program> factory)
+    protected TestBase(WebApplicationFactory<Program> factory)
         => Client = factory
             .WithWebHostBuilder(builder => builder.ConfigureServices(services =>
             {
@@ -25,11 +25,8 @@ public abstract class TestBase : IClassFixture<WebApplicationFactory<Program>>
             .CreateClient();
 }
 
-public class TodoItemCreationEndpointTest : TestBase
+public class WeatherDescriptionEndpointTest(WebApplicationFactory<Program> factory) : TestBase(factory)
 {
-    public TodoItemCreationEndpointTest(WebApplicationFactory<Program> factory)
-        : base(factory) { }
-    
     [Fact]
     public async Task CallingTheWeatherEndpointShouldReturnTheCorrectWeatherDescription()
     {
