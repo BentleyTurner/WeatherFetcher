@@ -1,6 +1,8 @@
 using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using WeatherFetcherWeb.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +23,8 @@ builder.Services.AddHttpClient<IWeatherService, WeatherService>(client =>
 {
     client.BaseAddress = new Uri("http://api.openweathermap.org/data/2.5/");
 });
-
+builder.Services.AddAuthentication("ApiKey")
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
 
 var app = builder.Build();
 
@@ -29,9 +32,11 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseClientRateLimiting();
 
-app.MapGet("/weather-description",
-    (string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
-        weatherService.FetchWeatherDescription(cityName, countryName));
+app.MapGet("/weather-description", async (HttpContext context, string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
+{
+    var weatherDescription = await weatherService.FetchWeatherDescription(cityName, countryName);
+    await context.Response.WriteAsJsonAsync(weatherDescription);
+}).RequireAuthorization();
 
 app.Run();
 

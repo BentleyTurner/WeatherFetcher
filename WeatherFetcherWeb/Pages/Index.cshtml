@@ -6,7 +6,7 @@
 
 <h1>Weather Fetcher</h1>
 
-<form method="post" asp-page-handler="FetchWeather">
+<form method="post">
     <div>
         <label for="CityName">City Name:</label>
         <input type="text" id="CityName" asp-for="CityName" />
@@ -15,7 +15,16 @@
         <label for="CountryName">Country Name:</label>
         <input type="text" id="CountryName" asp-for="CountryName" />
     </div>
-    <button type="submit">Fetch Weather Description</button>
+    <div class="form-group">
+        <label asp-for="SelectedApiKey"></label>
+        <select id="ApiKey" asp-for="SelectedApiKey" class="form-control">
+            @foreach (var apiKey in Model.ApiKeys)
+            {
+                <option value="@apiKey">@apiKey</option>
+            }
+        </select>
+    </div>
+    <button type="submit" asp-page-handler="FetchWeather">Fetch Weather</button>
 </form>
 
 @if (!string.IsNullOrEmpty(Model.WeatherDescription))
