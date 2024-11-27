@@ -8,15 +8,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<OpenWeatherMapSettings>(builder.Configuration.GetSection("OpenWeatherMap"));
 builder.Services.AddTransient<IWeatherService, WeatherService>();
+builder.Services.AddAuthorization();
 
 builder.Services
     .AddEndpointsApiExplorer()
     .AddSwaggerGen();
 
-
 builder.Services.AddMemoryCache();
+builder.Services.AddOptions();
 builder.Services.Configure<ClientRateLimitOptions>(builder.Configuration.GetSection("ClientRateLimiting"));
+builder.Services.Configure<ClientRateLimitPolicies>(builder.Configuration.GetSection("ClientRateLimitPolicies"));
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSingleton<IClientPolicyStore, DistributedCacheClientPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore,DistributedCacheRateLimitCounterStore>();
+
 builder.Services.AddInMemoryRateLimiting();
 
 builder.Services.AddHttpClient<IWeatherService, WeatherService>(client =>
@@ -31,6 +42,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseClientRateLimiting();
+app.UseAuthorization();
 
 app.MapGet("/weather-description", async (HttpContext context, string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
 {
