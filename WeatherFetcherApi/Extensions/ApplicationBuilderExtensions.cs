@@ -1,4 +1,5 @@
 using AspNetCoreRateLimit;
+using WeatherFetcherApi.Authentication;
 
 namespace WeatherFetcherApi.Extensions
 {
@@ -9,7 +10,7 @@ namespace WeatherFetcherApi.Extensions
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseClientRateLimiting();
-            app.UseAuthorization();
+            app.UseMiddleware<ApiKeyMiddleware>();
 
             return app;
         }

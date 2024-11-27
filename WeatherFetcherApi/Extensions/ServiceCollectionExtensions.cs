@@ -1,7 +1,5 @@
 using AspNetCoreRateLimit;
-using Microsoft.AspNetCore.Authentication;
 using WeatherFetcherApi.Services;
-using WeatherFetcherWeb.Authentication;
 
 namespace WeatherFetcherApi.Extensions
 {
@@ -11,7 +9,6 @@ namespace WeatherFetcherApi.Extensions
         {
             services.Configure<OpenWeatherMapSettings>(configuration.GetSection("OpenWeatherMap"));
             services.AddTransient<IWeatherService, WeatherService>();
-            services.AddAuthorization();
 
             services.AddEndpointsApiExplorer()
                 .AddSwaggerGen();
@@ -37,9 +34,6 @@ namespace WeatherFetcherApi.Extensions
                 var baseUrl = configuration["OpenWeatherMap:BaseUrl"];
                 client.BaseAddress = new Uri(baseUrl);
             });
-
-            services.AddAuthentication("ApiKey")
-                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
 
             return services;
         }

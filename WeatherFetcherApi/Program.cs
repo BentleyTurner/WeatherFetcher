@@ -11,11 +11,12 @@ var app = builder.Build();
 
 app.UseCustomMiddleware();
 
-app.MapGet("/weather-description", async (HttpContext context, string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
+app.MapGet("/weather-description", async (HttpContext context, string cityName, string countryName,
+    [FromServices] IWeatherService weatherService) =>
 {
     var weatherDescription = await weatherService.FetchWeatherDescription(cityName, countryName);
     await context.Response.WriteAsJsonAsync(weatherDescription);
-}).RequireAuthorization();
+});
 
 app.Run();
 
