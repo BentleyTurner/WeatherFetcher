@@ -1,48 +1,15 @@
-using AspNetCoreRateLimit;
-using Microsoft.AspNetCore.Authentication;
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using WeatherFetcherWeb.Authentication;
+using WeatherFetcherApi.Extensions;
+using WeatherFetcherApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<OpenWeatherMapSettings>(builder.Configuration.GetSection("OpenWeatherMap"));
-builder.Services.AddTransient<IWeatherService, WeatherService>();
-builder.Services.AddAuthorization();
-
-builder.Services
-    .AddEndpointsApiExplorer()
-    .AddSwaggerGen();
-
-builder.Services.AddMemoryCache();
-builder.Services.AddOptions();
-builder.Services.Configure<ClientRateLimitOptions>(builder.Configuration.GetSection("ClientRateLimiting"));
-builder.Services.Configure<ClientRateLimitPolicies>(builder.Configuration.GetSection("ClientRateLimitPolicies"));
-builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
-
-builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
-
-builder.Services.AddDistributedMemoryCache();
-
-builder.Services.AddSingleton<IClientPolicyStore, DistributedCacheClientPolicyStore>();
-builder.Services.AddSingleton<IRateLimitCounterStore,DistributedCacheRateLimitCounterStore>();
-
-builder.Services.AddInMemoryRateLimiting();
-
-builder.Services.AddHttpClient<IWeatherService, WeatherService>(client =>
-{
-    client.BaseAddress = new Uri("http://api.openweathermap.org/data/2.5/");
-});
-builder.Services.AddAuthentication("ApiKey")
-    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
+builder.Services.AddCustomServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseClientRateLimiting();
-app.UseAuthorization();
+app.UseCustomMiddleware();
 
 app.MapGet("/weather-description", async (HttpContext context, string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
 {
@@ -52,50 +19,5 @@ app.MapGet("/weather-description", async (HttpContext context, string cityName, 
 
 app.Run();
 
-public record WeatherDescription(string Description);
-
-public interface IWeatherService
-{
-    Task<WeatherDescription> FetchWeatherDescription(string cityName, string countryName);
-}
-
-internal class WeatherService : IWeatherService
-{
-    private readonly HttpClient _httpClient;
-    private readonly OpenWeatherMapSettings _settings;
-
-    public WeatherService(HttpClient httpClient, IOptions<OpenWeatherMapSettings> settings)
-    {
-        _httpClient = httpClient;
-        _settings = settings.Value;
-    }
-
-    public async Task<WeatherDescription> FetchWeatherDescription(string cityName, string countryName)
-    {
-        var response = await _httpClient.GetAsync($"weather?q={cityName},{countryName}&appid={_settings.ApiKey}");
-        response.EnsureSuccessStatusCode();
-
-        var weatherData = await response.Content.ReadFromJsonAsync<WeatherApiResponse>();
-        var weatherDescription = new WeatherDescription(weatherData.Weather[0].Description);
-
-        return weatherDescription;
-    }
-}
 
 public partial class Program { }
-
-
-public class WeatherApiResponse
-{
-    public Weather[] Weather { get; set; }
-}
-
-public class Weather
-{
-    public string Description { get; set; }
-}
-
-public class OpenWeatherMapSettings
-{
-    public string ApiKey { get; set; }
-}
