@@ -24,7 +24,7 @@ namespace WeatherFetcherApi.Tests
                     config.AddInMemoryCollection(new Dictionary<string, string>
                     {
                         { "ApiKeys:0", "your-api-key-here" }
-                    });
+                    }!);
                 });
 
                 builder.ConfigureTestServices(services =>
@@ -77,13 +77,13 @@ namespace WeatherFetcherApi.Tests
         public string Description { get; set; }
     }
 
-    public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class TestAuthHandler(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
+        ISystemClock clock)
+        : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder, clock)
     {
-        public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-            : base(options, logger, encoder, clock)
-        {
-        }
-
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var claims = new[] { new Claim(ClaimTypes.Name, "TestUser") };
