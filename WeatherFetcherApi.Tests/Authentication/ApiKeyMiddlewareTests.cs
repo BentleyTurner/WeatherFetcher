@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json;
 using WeatherFetcherApi.Authentication;
 
 namespace WeatherFetcherApi.Tests.Authentication;
@@ -10,6 +11,7 @@ public class ApiKeyMiddlewareTests
     private readonly Mock<RequestDelegate> _nextMock;
     private readonly Mock<IConfiguration> _configurationMock;
     private readonly ApiKeyMiddleware _middleware;
+    private const string ClientIdHeaderName = "X-CLIENT-ID";
 
     public ApiKeyMiddlewareTests()
     {
@@ -41,9 +43,8 @@ public class ApiKeyMiddlewareTests
         // Arrange
         var context = new DefaultHttpContext();
         context.Request.Headers["X-API-KEY"] = "invalid-api-key";
+        context.Request.Headers[ClientIdHeaderName] = "client-id";
         context.Response.Body = new MemoryStream();
-
-        _configurationMock.Setup(c => c["ApiKey"]).Returns("valid-api-key");
 
         // Act
         await _middleware.InvokeAsync(context);
