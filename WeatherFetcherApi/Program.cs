@@ -1,8 +1,10 @@
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<OpenWeatherMapSettings>(builder.Configuration.GetSection("OpenWeatherMap"));
 builder.Services.AddTransient<IWeatherService, WeatherService>();
 
 builder.Services
@@ -15,6 +17,11 @@ builder.Services.Configure<ClientRateLimitOptions>(builder.Configuration.GetSect
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 builder.Services.AddInMemoryRateLimiting();
 
+builder.Services.AddHttpClient<IWeatherService, WeatherService>(client =>
+{
+    client.BaseAddress = new Uri("http://api.openweathermap.org/data/2.5/");
+});
+
 
 var app = builder.Build();
 
@@ -22,9 +29,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseClientRateLimiting();
 
-app.MapGet("/weatherdescription",
-    (string cityName, string countryName, string apiKey, [FromServices] IWeatherService weatherService) =>
-        weatherService.FetchWeatherDescription(cityName, countryName, apiKey));
+app.MapGet("/weather-description",
+    (string cityName, string countryName, [FromServices] IWeatherService weatherService) =>
+        weatherService.FetchWeatherDescription(cityName, countryName));
 
 app.Run();
 
@@ -32,17 +39,46 @@ public record WeatherDescription(string Description);
 
 public interface IWeatherService
 {
-    WeatherDescription FetchWeatherDescription(string cityName, string countryName, string apiKey);
+    Task<WeatherDescription> FetchWeatherDescription(string cityName, string countryName);
 }
 
 internal class WeatherService : IWeatherService
 {
-    public WeatherDescription FetchWeatherDescription(string cityName, string countryName, string apiKey)
+    private readonly HttpClient _httpClient;
+    private readonly OpenWeatherMapSettings _settings;
+
+    public WeatherService(HttpClient httpClient, IOptions<OpenWeatherMapSettings> settings)
     {
-        var weatherDescription = new WeatherDescription(countryName);
-        
+        _httpClient = httpClient;
+        _settings = settings.Value;
+    }
+
+    public async Task<WeatherDescription> FetchWeatherDescription(string cityName, string countryName)
+    {
+        var response = await _httpClient.GetAsync($"weather?q={cityName},{countryName}&appid={_settings.ApiKey}");
+        response.EnsureSuccessStatusCode();
+
+        var weatherData = await response.Content.ReadFromJsonAsync<WeatherApiResponse>();
+        var weatherDescription = new WeatherDescription(weatherData.Weather[0].Description);
+
         return weatherDescription;
     }
 }
 
 public partial class Program { }
+
+
+public class WeatherApiResponse
+{
+    public Weather[] Weather { get; set; }
+}
+
+public class Weather
+{
+    public string Description { get; set; }
+}
+
+public class OpenWeatherMapSettings
+{
+    public string ApiKey { get; set; }
+}

@@ -20,15 +20,13 @@ public class IndexModel : PageModel
     [BindProperty]
     public string CountryName { get; set; }
 
-    [BindProperty]
-    public string ApiKey { get; set; }
-
     public string WeatherDescription { get; set; }
 
     public async Task<IActionResult> OnPostFetchWeatherAsync()
     {
-        var url = $"http://localhost:6008/weatherdescription?cityName={CityName}&countryName={CountryName}&apiKey={ApiKey}";
+        var url = $"http://localhost:6008/weather-info?cityName={CityName}&countryName={CountryName}";
         _logger.LogInformation("Requesting weather data from URL: {Url}", url);
+
 
         var response = await _httpClient.GetAsync(url);
 

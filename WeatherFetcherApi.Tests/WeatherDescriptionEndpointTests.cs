@@ -8,8 +8,8 @@ namespace WeatherFetcherApi.Tests;
 
 internal class TestWeatherService : IWeatherService
 {
-    public WeatherDescription FetchWeatherDescription(string cityName, string countryName, string apiKey) 
-        => new("Sunny");
+    public Task<WeatherDescription> FetchWeatherDescription(string cityName, string countryName) 
+        => Task.FromResult(new WeatherDescription("Clear sky"));
 }
 
 public abstract class TestBase : IClassFixture<WebApplicationFactory<Program>>
@@ -33,8 +33,7 @@ public class WeatherDescriptionEndpointTest(WebApplicationFactory<Program> facto
         // Arrange
         var cityName = "New York";
         var countryName = "USA";
-        var apiKey = "test-api-key";
-        var url = $"/weatherdescription?cityName={cityName}&countryName={countryName}&apiKey={apiKey}";
+        var url = $"/weather-description?cityName={cityName}&countryName={countryName}";
 
         // Act
         var result = await Client.GetAsync(url);
@@ -43,7 +42,7 @@ public class WeatherDescriptionEndpointTest(WebApplicationFactory<Program> facto
         result.EnsureSuccessStatusCode();
         var weatherDescription = await result.Content.ReadFromJsonAsync<WeatherDescription>();
         Assert.NotNull(weatherDescription);
-        Assert.Equal("Sunny", weatherDescription.Description);
+        Assert.Equal("Clear sky", weatherDescription.Description);
     }
     
 }
