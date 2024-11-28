@@ -42,7 +42,7 @@ public class IndexPageTests
         // Arrange
         _pageModel.CountryName = "TestCountry";
         _pageModel.SelectedApiKey = "test-api-key";
-        _pageModel.CityName = "TestCity"; // Ensure CityName is set
+        _pageModel.CityName = "TestCity"; 
         var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = new StringContent("Sunny")
@@ -70,7 +70,7 @@ public class IndexPageTests
         // Arrange
         _pageModel.CountryName = "TestCountry";
         _pageModel.SelectedApiKey = "test-api-key";
-        _pageModel.CityName = "TestCity"; // Ensure CityName is set
+        _pageModel.CityName = "TestCity";
         var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
         _httpMessageHandlerMock
             .Protected()
@@ -86,6 +86,6 @@ public class IndexPageTests
 
         // Assert
         Assert.IsType<PageResult>(result);
-        Assert.Equal("Error fetching weather description. Status code: BadRequest", _pageModel.WeatherDescription);
+        Assert.Equal("Oh no! we cant get the weather right now! ", _pageModel.WeatherDescription);
     }
 }

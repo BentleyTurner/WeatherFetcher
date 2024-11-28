@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WeatherFetcherWeb.Models;
@@ -21,9 +22,11 @@ namespace WeatherFetcherWeb.Pages
 
 
         [BindProperty]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "City name must contain only letters.")]
         public string CityName { get; set; }
 
         [BindProperty]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Country name must contain only letters.")]
         public string CountryName { get; set; }
         
         [BindProperty]
@@ -35,7 +38,13 @@ namespace WeatherFetcherWeb.Pages
 
         public async Task<IActionResult> OnPostFetchWeatherAsync()
         {
-            var url = $"http://localhost:6008/weather-description?cityName={CityName}&countryName={CountryName}";
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            var baseUrl = _configuration["WeatherApi:BaseUrl"];
+            var url = $"{baseUrl}weather-description?cityName={CityName}&countryName={CountryName}";
             _logger.LogInformation("Requesting weather data from URL: {Url}", url);
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -51,7 +60,7 @@ namespace WeatherFetcherWeb.Pages
             }
             else
             {
-                WeatherDescription = $"Error fetching weather description. Status code: {response.StatusCode}";
+                WeatherDescription = $"Oh no! we cant get the weather right now!";
             }
 
             return Page();
