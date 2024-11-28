@@ -21,17 +21,20 @@
         <div class="form-group mb-4">
             <label asp-for="SelectedApiKey"></label>
             <select id="ApiKey" asp-for="SelectedApiKey" class="form-control">
-                @foreach (var apiKey in Model.ApiKeys)
+                @if (Model.ApiKeys != null)
                 {
-                    <option value="@apiKey">@apiKey</option>
+                    foreach (var apiKey in Model.ApiKeys)
+                    {
+                        <option value="@apiKey">@apiKey</option>
+                    }
                 }
             </select>
         </div>
-        <button type="submit" asp-page-handler="FetchWeather">Fetch Weather</button>
+        <button type="submit" asp-page-handler="FetchWeather"class="mb-2">Fetch Weather</button>
     </form>
-    </div>
+    @if (!string.IsNullOrEmpty(Model.WeatherDescription))
+    {
+        <p id="weatherDescription" class="mb-4">@Model.WeatherDescription</p>
+    }
+</div>
 
-@if (!string.IsNullOrEmpty(Model.WeatherDescription))
-{
-    <p id="weatherDescription">@Model.WeatherDescription</p>
-}

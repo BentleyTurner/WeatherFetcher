@@ -3,27 +3,15 @@ using WeatherFetcherApi.Models;
 
 namespace WeatherFetcherApi.Services;
 
-public class WeatherService : IWeatherService
+public class WeatherService(HttpClient httpClient, IConfiguration configuration) : IWeatherService
 {
-    private readonly HttpClient _httpClient;
-    private readonly string _apiKey;
-
-    public WeatherService(HttpClient httpClient, IConfiguration configuration)
-    {
-        _httpClient = httpClient;
-        _apiKey = configuration["OpenWeatherMap:ApiKey"];
-    }
+    private readonly string? _apiKey = configuration["OpenWeatherMap:ApiKey"];
 
     public async Task<string> FetchWeatherDescription(string cityName, string countryName)
     {
-        var response = await _httpClient.GetStringAsync($"weather?q={cityName},{countryName}&apiKey={_apiKey}");
+        var response = await httpClient.GetStringAsync($"weather?q={cityName},{countryName}&apiKey={_apiKey}");
         var weatherApiResponse = JsonConvert.DeserializeObject<WeatherApiResponse>(response);
 
-        if (weatherApiResponse.Weather != null && weatherApiResponse.Weather.Length > 0)
-        {
-            return weatherApiResponse.Weather[0].Description;
-        }
-
-        return "No weather information available";
+        return weatherApiResponse is { Weather.Length: > 0 } ? weatherApiResponse.Weather[0].Description : "No weather information available";
     }
 }

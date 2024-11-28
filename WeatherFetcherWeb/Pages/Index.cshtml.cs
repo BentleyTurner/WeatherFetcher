@@ -1,8 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WeatherFetcherWeb.Models;
-using System.Net.Http.Headers;
 
 namespace WeatherFetcherWeb.Pages
 {
@@ -23,18 +21,18 @@ namespace WeatherFetcherWeb.Pages
 
         [BindProperty]
         [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "City name must contain only letters.")]
-        public string CityName { get; set; }
+        public required string CityName { get; set; }
 
         [BindProperty]
         [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Country name must contain only letters.")]
-        public string CountryName { get; set; }
+        public required string CountryName { get; set; }
         
         [BindProperty]
-        public string SelectedApiKey { get; set; }
+        public required string SelectedApiKey { get; set; }
         
-        public List<string> ApiKeys { get; set; }
+        public List<string>? ApiKeys { get; set; }
 
-        public string WeatherDescription { get; set; }
+        public required string WeatherDescription { get; set; }
 
         public async Task<IActionResult> OnPostFetchWeatherAsync()
         {

@@ -1,32 +1,26 @@
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
-using Xunit;
 using WeatherFetcherApi.Services;
-using WeatherFetcherApi.Models;
 
-namespace WeatherFetcherApi.Tests;
+namespace WeatherFetcherApi.Tests.Services;
 
 public class WeatherServiceTests
 {
     private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-        private readonly HttpClient _httpClient;
-        private readonly Mock<IConfiguration> _configurationMock;
-        private readonly WeatherService _weatherService;
+    private readonly WeatherService _weatherService;
 
         public WeatherServiceTests()
         {
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-            _httpClient = new HttpClient(_httpMessageHandlerMock.Object)
+            var httpClient = new HttpClient(_httpMessageHandlerMock.Object)
             {
-                BaseAddress = new System.Uri("http://localhost")
+                BaseAddress = new Uri("http://localhost")
             };
-            _configurationMock = new Mock<IConfiguration>();
-            _configurationMock.Setup(c => c["OpenWeatherMap:ApiKey"]).Returns("fake-api-key");
-            _weatherService = new WeatherService(_httpClient, _configurationMock.Object);
+            Mock<IConfiguration> configurationMock = new();
+            configurationMock.Setup(c => c["OpenWeatherMap:ApiKey"]).Returns("fake-api-key");
+            _weatherService = new WeatherService(httpClient, configurationMock.Object);
         }
 
         [Fact]

@@ -32,7 +32,7 @@ namespace WeatherFetcherApi.Extensions
             services.AddHttpClient<IWeatherService, WeatherService>(client =>
             {
                 var baseUrl = configuration["OpenWeatherMap:BaseUrl"];
-                client.BaseAddress = new Uri(baseUrl);
+                if (baseUrl != null) client.BaseAddress = new Uri(baseUrl);
             });
 
             return services;
@@ -41,7 +41,7 @@ namespace WeatherFetcherApi.Extensions
 
     public class OpenWeatherMapSettings
     {
-        public string ApiKey { get; set; }
+        public string? ApiKey { get; set; }
     }
 }
 

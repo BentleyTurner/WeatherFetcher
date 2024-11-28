@@ -21,4 +21,4 @@ app.MapGet("/weather-description", async (HttpContext context, string cityName, 
 app.Run();
 
 
-public partial class Program { }
+public abstract partial class Program { }

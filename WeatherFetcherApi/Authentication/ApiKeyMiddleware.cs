@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace WeatherFetcherApi.Authentication;
 public class ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
 {
@@ -13,7 +15,7 @@ public class ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration
         }
 
         var apiKeys = configuration.GetSection("ApiKeys").Get<List<string>>();
-        if (!apiKeys.Contains(extractedApiKey))
+        if (apiKeys != null && !apiKeys.Contains(extractedApiKey!))
         {
             context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Unauthorized client");
