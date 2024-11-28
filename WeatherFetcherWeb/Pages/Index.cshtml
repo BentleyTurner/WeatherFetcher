@@ -30,11 +30,10 @@
                 }
             </select>
         </div>
-        <button type="submit" asp-page-handler="FetchWeather"class="mb-2">Fetch Weather</button>
+        <button type="submit" asp-page-handler="FetchWeather" class="mb-2">Fetch Weather</button>
     </form>
     @if (!string.IsNullOrEmpty(Model.WeatherDescription))
     {
         <p id="weatherDescription" class="mb-4">@Model.WeatherDescription</p>
     }
 </div>
-

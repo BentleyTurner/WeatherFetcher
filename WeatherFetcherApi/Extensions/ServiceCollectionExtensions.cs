@@ -5,18 +5,24 @@ namespace WeatherFetcherApi.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomServices(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
         {
             services.Configure<OpenWeatherMapSettings>(configuration.GetSection("OpenWeatherMap"));
             services.AddTransient<IWeatherService, WeatherService>();
 
-            services.AddEndpointsApiExplorer()
-                .AddSwaggerGen();
+            services.AddEndpointsApiExplorer().AddSwaggerGen();
 
             services.AddMemoryCache();
             services.AddOptions();
-            services.Configure<ClientRateLimitOptions>(configuration.GetSection("ClientRateLimiting"));
-            services.Configure<ClientRateLimitPolicies>(configuration.GetSection("ClientRateLimitPolicies"));
+            services.Configure<ClientRateLimitOptions>(
+                configuration.GetSection("ClientRateLimiting")
+            );
+            services.Configure<ClientRateLimitPolicies>(
+                configuration.GetSection("ClientRateLimitPolicies")
+            );
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
 
@@ -32,7 +38,8 @@ namespace WeatherFetcherApi.Extensions
             services.AddHttpClient<IWeatherService, WeatherService>(client =>
             {
                 var baseUrl = configuration["OpenWeatherMap:BaseUrl"];
-                if (baseUrl != null) client.BaseAddress = new Uri(baseUrl);
+                if (baseUrl != null)
+                    client.BaseAddress = new Uri(baseUrl);
             });
 
             return services;
@@ -44,4 +51,3 @@ namespace WeatherFetcherApi.Extensions
         public string? ApiKey { get; set; }
     }
 }
-

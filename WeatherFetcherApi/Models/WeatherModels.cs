@@ -4,10 +4,10 @@ public record WeatherDescription(string Description);
 
 public class WeatherApiResponse
 {
-    public Weather[] Weather { get; set; }
+    public required Weather[] Weather { get; set; }
 }
 
 public class Weather
 {
-    public string Description { get; set; }
+    public required string Description { get; set; }
 }

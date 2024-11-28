@@ -1,6 +1,5 @@
-using System.Diagnostics;
-
 namespace WeatherFetcherApi.Authentication;
+
 public class ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
 {
     private const string ApiKeyHeaderName = "ClientIdHeader";

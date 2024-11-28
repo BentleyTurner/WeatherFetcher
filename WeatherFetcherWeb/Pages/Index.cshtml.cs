@@ -10,7 +10,11 @@ namespace WeatherFetcherWeb.Pages
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public IndexModel(HttpClient httpClient, ILogger<IndexModel> logger, IConfiguration configuration)
+        public IndexModel(
+            HttpClient httpClient,
+            ILogger<IndexModel> logger,
+            IConfiguration configuration
+        )
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -18,18 +22,20 @@ namespace WeatherFetcherWeb.Pages
             ApiKeys = _configuration.GetSection("ApiKeys").Get<List<string>>();
         }
 
-
         [BindProperty]
         [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "City name must contain only letters.")]
         public required string CityName { get; set; }
 
         [BindProperty]
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Country name must contain only letters.")]
+        [RegularExpression(
+            @"^[a-zA-Z]+$",
+            ErrorMessage = "Country name must contain only letters."
+        )]
         public required string CountryName { get; set; }
-        
+
         [BindProperty]
         public required string SelectedApiKey { get; set; }
-        
+
         public List<string>? ApiKeys { get; set; }
 
         public required string WeatherDescription { get; set; }
@@ -50,7 +56,10 @@ namespace WeatherFetcherWeb.Pages
 
             var response = await _httpClient.SendAsync(request);
 
-            _logger.LogInformation("Received response with status code: {StatusCode}", response.StatusCode);
+            _logger.LogInformation(
+                "Received response with status code: {StatusCode}",
+                response.StatusCode
+            );
 
             if (response.IsSuccessStatusCode)
             {
